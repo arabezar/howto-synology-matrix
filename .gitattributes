@@ -1,0 +1,3 @@
+# Устанавливаем обработку переносов строк
+*.yaml text eol=lf
+*.conf text eol=lf
