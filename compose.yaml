@@ -1,0 +1,54 @@
+version: "3.8"
+services:
+  proxy:
+    image: nginx:alpine
+    container_name: matrix-internal-proxy
+    ports:
+      - 18080:80
+    volumes:
+      - ./proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - dendrite
+      - auth
+    restart: unless-stopped
+
+  dendrite:
+    image: matrixdotorg/dendrite-monolith:latest
+    container_name: matrix-dendrite
+    ports:
+      - 8008:8008
+    volumes:
+      - ./dendrite.yaml:/etc/dendrite/dendrite.yaml:ro
+      - ./matrix_key.pem:/etc/dendrite/matrix_key.pem:ro
+      - ./db:/var/lib/dendrite
+    restart: unless-stopped
+
+  auth:
+    image: ghcr.io/element-hq/lk-jwt-service:latest
+    container_name: matrix-auth
+    environment:
+      - LIVEKIT_JWT_BIND=0.0.0.0:8080
+      - LIVEKIT_URL=https://livekit.example.com # Edit your LiveKit domain here
+      - LIVEKIT_KEY=devkey
+      - LIVEKIT_SECRET=Your_Secret_Token # Edit your registration secret phrase
+      - LIVEKIT_FULL_ACCESS_HOMESERVERS=matrix.example.com # Edit your Matrix domain here
+    restart: unless-stopped
+
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: matrix-livekit
+    command: --config /etc/livekit.yaml
+    environment:
+      - LIVEKIT_NODE_IP=123.45.67.89 # Edit your external static IP address here
+    ports:
+      - 7880:7880/tcp # API
+      - 7881:7881/tcp # Signal/TCP fallback
+      - 3478:3478/udp # TURN
+      - 50100-50200:50100-50200/udp # LiveKit Media
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    restart: unless-stopped
+
+networks:
+  default:
+    name: matrix-net
