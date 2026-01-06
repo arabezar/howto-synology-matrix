@@ -1,18 +1,18 @@
 server {
     listen 80;
-    server_name example.com matrix.example.com auth.example.com livekit.example.com; # Edit your base, Matrix Dendrite, LiveKit and Auth domains here
+    server_name ${DOMAIN_BASE} ${DOMAIN_MATRIX} ${DOMAIN_AUTH} ${DOMAIN_LIVEKIT};
 
     # Discovery (.well-known) - Dendrite его не отдает, поэтому отдаем сами.
     location /.well-known/matrix/server {
         default_type application/json;
         add_header 'Access-Control-Allow-Origin' '*' always;
-        return 200 '{"m.server": "matrix.example.com:443"}';
+        return 200 '{"m.server": "${DOMAIN_MATRIX}:443"}';
     }
 
     location /.well-known/matrix/client {
         default_type application/json;
         add_header 'Access-Control-Allow-Origin' '*' always;
-        return 200 '{"m.homeserver":{"base_url":"https://example.com"},"org.matrix.msc4143.rtc_foci":[{"type":"livekit","livekit_service_url":"https://auth.example.com"}],"org.matrix.msc3401.matrix_rtc":{"is_supported":true,"livekit":{"preferred_url":"https://livekit.example.com"}}}';
+        return 200 '{"m.homeserver":{"base_url":"https://${DOMAIN_BASE}"},"org.matrix.msc4143.rtc_foci":[{"type":"livekit","livekit_service_url":"https://${DOMAIN_AUTH}"}],"org.matrix.msc3401.matrix_rtc":{"is_supported":true,"livekit":{"preferred_url":"https://${DOMAIN_LIVEKIT}"}}}';
     }
 
     # Трафик Matrix API (Dendrite)
@@ -32,10 +32,10 @@ server {
         proxy_set_header Connection "Upgrade";
 
         # Перенаправляем по именам хостов
-        if ($host = "auth.example.com") {
+        if ($host = "${DOMAIN_AUTH}") {
             proxy_pass http://matrix-auth:8080;
         }
-        if ($host = "livekit.example.com") {
+        if ($host = "${DOMAIN_LIVEKIT}") {
             proxy_pass http://matrix-livekit:7880;
         }
 
@@ -43,7 +43,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
         # Возврат на Synology DSM
-        if ($host = "example.com") {
+        if ($host = "${DOMAIN_BASE}") {
             proxy_pass http://host.docker.internal;
         }
         
