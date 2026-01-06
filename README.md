@@ -95,4 +95,4 @@ testmatrix -u admin -t <token> exemple.com
 
 ## Вклад
 
-- Предложения и замечания категорически приветствуются [здесь](https://github.com/arabezar/howto-synology-matrix/discussions)
+- Предложения и замечания категорически приветствуются [здесь](https://github.com/arabezar/howto-synology-matrix-dendrite/discussions)
