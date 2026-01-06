@@ -5,6 +5,8 @@ services:
     container_name: matrix-internal-proxy
     ports:
       - 18080:80
+    extra_hosts:
+      - host.docker.internal:host-gateway
     volumes:
       - ./proxy.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
@@ -31,7 +33,7 @@ services:
       - LIVEKIT_URL=https://livekit.example.com # Edit your LiveKit domain here
       - LIVEKIT_KEY=devkey
       - LIVEKIT_SECRET=Your_Secret_Token # Edit your registration secret phrase
-      - LIVEKIT_FULL_ACCESS_HOMESERVERS=matrix.example.com # Edit your Matrix domain here
+      - LIVEKIT_FULL_ACCESS_HOMESERVERS=example.com # Edit your Matrix domain here
     restart: unless-stopped
 
   livekit:
