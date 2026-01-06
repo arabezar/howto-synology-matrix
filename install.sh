@@ -16,7 +16,7 @@ echo "Проверка необходимых условий..."
 # Определение папки проекта
 [[ "$(realpath .)" == "$(realpath ${DOCKER_PATH})"* ]] && MATRIX_PRJ_NAME="$(realpath --relative-to="$(realpath ${DOCKER_PATH})" .)" || MATRIX_PRJ_NAME="${MATRIX_PRJ_NAME_DEFAULT}"
 [ "${MATRIX_PRJ_NAME}" = "." ] && MATRIX_PRJ_NAME="${MATRIX_PRJ_NAME_DEFAULT}"
-read -p "Задайти папку проекта [${MATRIX_PRJ_NAME}] (Enter - подтвердить): " MATRIX_PRJ_NAME_NEW
+read -p "Задайте папку проекта [${MATRIX_PRJ_NAME}] (Enter - подтвердить): " MATRIX_PRJ_NAME_NEW
 [ -n "${MATRIX_PRJ_NAME_NEW}" ] && MATRIX_PRJ_NAME="${MATRIX_PRJ_NAME_NEW}"
 [ -z "${MATRIX_PRJ_NAME}" ] && echo "❌ Не задана папка проекта Container Manager" && exit 252
 mkdir -p "${DOCKER_PATH}/${MATRIX_PRJ_NAME}/db"
