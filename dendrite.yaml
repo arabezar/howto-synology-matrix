@@ -25,7 +25,7 @@ media_api:
   database:
     connection_string: "file:/var/lib/dendrite/mediaapi.db"
   base_path: "/var/lib/dendrite/media"
-  max_file_size_bytes: 52428800
+  max_file_size_bytes: 52428800 # 50 MB
 
 sync_api:
   database:
