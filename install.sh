@@ -114,7 +114,7 @@ if [ -f "matrix_key.pem" ]; then
     echo "... ключ подписи Matrix найден, генерация пропущена"
 else
     echo "Генерация ключа подписи Matrix..."
-    docker run --entrypoint="/usr/bin/generate-keys" -v $(pwd):/mnt matrixdotorg/dendrite-monolith:latest --private-key /mnt/matrix_key.pem
+    docker run --rm --entrypoint="/usr/bin/generate-keys" -v $(pwd):/mnt matrixdotorg/dendrite-monolith:latest --private-key /mnt/matrix_key.pem
 fi
 
 chmod ugo-x *.yaml proxy.conf.template matrix_key.pem
