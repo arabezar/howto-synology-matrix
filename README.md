@@ -6,13 +6,13 @@
 
 - Synology DSM 7.x с админским доступом, в том числе и по SSH
 - Установленный пакет `Container Manager`
-- Наличие валидного SSL-сертификата для используемых (под)доменов, иначе работать не будет.
+- Наличие домена, возможность управлять им, а также валидного SSL-сертификата для используемых (под)доменов, иначе работать не будет.
 - Установленный пакет `Git Server` (только если требуется клонировать текущий репозиторий непосредственно на Synology)
 
 ## Ограничения
 
 - Реализованная архитектура проверялась на белом статическом IP-адресе провайдера, как она будет вести себя на динамическом адресе - не знаю, проверяйте.
-- Архитектура подразумевает использование малыми группами людей, например, дома, и не рассчитана на большие нагрузки, поэтому использована встроенная СУБД SQLite, которую при желании несложно заменить на PostgreSQL в контейнере.
+- Архитектура подразумевает использование малыми группами людей, например, дома, и не рассчитана на большие нагрузки, поэтому использована встроенная СУБД `SQLite`, которую при желании несложно заменить на `PostgreSQL` в контейнере.
 - Клиент `Element X` пока [не поддерживается](https://github.com/element-hq/dendrite#dendrite) из-за отсутствия в `Dendrite` поддержки [MSC4186 (Simplified Sliding Sync)](https://github.com/matrix-org/matrix-spec-proposals/pull/4186) и [MSC3861 (Next-gen auth OIDC)](https://github.com/matrix-org/matrix-spec-proposals/pull/3861)
 
 ## Подготовка папок и ключей
@@ -24,10 +24,7 @@ mkdir -p /volume1/docker/matrix/db
 cd /volume1/docker/matrix
 
 # Генерация ключа подписи Matrix
-docker run --entrypoint="/usr/bin/generate-keys" \
-  -v $(pwd):/mnt \
-  matrixdotorg/dendrite-monolith:latest \
-  --private-key /mnt/matrix_key.pem
+docker run --entrypoint="/usr/bin/generate-keys" -v $(pwd):/mnt matrixdotorg/dendrite-monolith:latest --private-key /mnt/matrix_key.pem
 ```
 
 ## Подготовка конфигурационных файлов
@@ -37,7 +34,7 @@ docker run --entrypoint="/usr/bin/generate-keys" \
 # Клонирование репозитория в текущую папку
 git clone https://github.com/arabezar/howto-synology-matrix
 ```
-В файлах необходимо прописать используемые Ваши домены: `matrix.example.com`, `livekit.example.com`, `auth.example.com`, секретную фразу (везде одна и та же!) `Your_Secret_Token` и свой внешний статический IP адрес `LIVEKIT_NODE_IP`
+В файлах необходимо прописать используемые Ваши домены: `example.com`, `matrix.example.com`, `livekit.example.com`, `auth.example.com`, секретную фразу (везде одна и та же!) `Your_Secret_Token` и свой внешний статический IP адрес `LIVEKIT_NODE_IP`
 
 Проверьте результат редактирования командой:
 ```bash
@@ -53,6 +50,8 @@ grep -E ".\example\.com|Your_LiveKit_Secret|123\.45\.67\.89" *.*
 - `matrix.example.com:8448` -> `http://localhost:18080` (WebSocket: ON)
 - `auth.example.com:443` -> `http://localhost:18080` (WebSocket: ON)
 - `livekit.example.com:443` -> `http://localhost:18080` (WebSocket: ON)
+- `example.com:443` -> `http://localhost:18080` (WebSocket: ON) - не обязательно, см. [Нюансы](#нюансы-развёртывания) ниже
+- `example.com:8448` -> `http://localhost:18080` (WebSocket: ON) - не обязательно, см. [Нюансы](#нюансы-развёртывания) ниже
 
 ## Проброс портов на роутере
 Направьте на локальный IP Synology:
@@ -66,22 +65,32 @@ grep -E ".\example\.com|Your_LiveKit_Secret|123\.45\.67\.89" *.*
 ## Создание администратора
 После запуска контейнеров выполните команду:
 ```bash
-docker exec -it matrix-dendrite /usr/bin/create-account \
-  --config /etc/dendrite/dendrite.yaml \
-  --username admin \
-  --admin
+docker exec -it matrix-dendrite /usr/bin/create-account -config /etc/dendrite/dendrite.yaml -username admin -admin
 ```
 Если не хотите отдельного админа, а сами хотите им быть, заменить имя `admin` на своё, и создаваемый пользователь, т.е. Вы, сразу станет админом. Сделующих пользователей можно создавать так же, но без ключа `--admin`. Пароль будет запрошен дважды после запуска команды.
 
+## Тестирование сервера
+Есть множество вариантов, например, [testmatrix](https://codeberg.org/spaetz/testmatrix), - после установки инструмента в консоли `VS Code` введите команду:
+```bash
+testmatrix exemple.com
+```
+инструмент укажет на проблемы с сервером. Можно протестировать и авторизацию с указанием пользователя и токена (который можно найти в UI клиента после регистрации пользователя; например, в Element Web - клик на пользователе > Все настройки > Помощь и о программе > Токен доступа)
+```bash
+testmatrix -u admin -t <token> exemple.com
+```
+
 ## Тестирование в браузере
 Теперь можно зайти на свой сервер через коиента [Element Web](https://app.element.io): `Войти` > `Изменить` сервер на свой `https://matrix.example.com` > `Продолжить` > Ввести имя созданного ранее пользователя и пароль > `Войти`.
+
+## Нюансы развёртывания
+> [!TIP]
+> При необходимости для сервера можно задать имя как `matrix.example.com`, так и `example.com`, от этого будет зависеть суффикс полного имени пользователя: `@admin:matrix.example.com` или `@admin:example.com`. Если используется краткая форма `example.com`, то домен необходимо обязательно [пробросить через обратный прокси](#настройка-synology-reverse-proxy), чтобы сервер Matrix имел возможность взаимодействия с доменом, при этом все «лишние» запросы будут возвращены Synology для дальнейшей обработки, сервер Matrix обработает только предназначенные для него. Если вы столкнулись с «неправильным» поведением `example.com`, просто не делайте его проброс на прокси контейнеров, но ваши пользователи будут имет длинный суффикс `matrix.example.com`, что абсолютно не мешает никакой функциональности.
 
 ## Технологии
 
 - [Synology](https://www.synology.com/)    
 - [Docker](https://www.docker.com/)
-- [Matrix](https://matrix.org)
-- [Matrix Dendrite](https://github.com/matrix-org/dendrite)
+- [Matrix](https://matrix.org), [Matrix Dendrite](https://github.com/matrix-org/dendrite), [Continuwuity](https://continuwuity.org), [Matrix server setup using Ansible and Docker](https://github.com/spantaleev/matrix-docker-ansible-deploy), [Adding bridges](https://gitlab.com/rogs/dendrite-docker-bridges)
 - [Клиенты Element](https://element.io/download)
 
 ## Вклад
