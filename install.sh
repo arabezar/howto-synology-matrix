@@ -3,7 +3,7 @@
 VERSION="0.0.1" # Версия скрипта
 
 DOCKER_PATH="/var/packages/ContainerManager/shares/docker"
-MATRIX_PRJ_NAME_DEFAULT="matrix"
+MATRIX_PRJ_NAME_DEFAULT="matrix-dendrite"
 TEMPLATES_URL_BASE="https://github.com/arabezar/howto-synology-matrix-dendrite/raw/refs/heads/main"
 
 # Проверка наличия необходимых утилит и условий
