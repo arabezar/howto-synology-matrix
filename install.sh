@@ -92,15 +92,15 @@ fi
 if [ -f "dendrite.yaml" ]; then
     echo "... dendrite.yaml найден, загрузка пропущена"
 else
-    curl -sLO "${TEMPLATES_URL_BASE}/dendrite.yaml"
-    envsubst_my dendrite.yaml > dendrite.yaml.tmp && mv dendrite.yaml.tmp dendrite.yaml
+    curl -sLO "${TEMPLATES_URL_BASE}/dendrite.yaml.tpl"
+    envsubst_my dendrite.yaml.tpl > dendrite.yaml
 fi
 
 if [ -f "livekit.yaml" ]; then
     echo "... livekit.yaml найден, загрузка пропущена"
 else
-    curl -sLO "${TEMPLATES_URL_BASE}/livekit.yaml"
-    envsubst_my livekit.yaml > livekit.yaml.tmp && mv livekit.yaml.tmp livekit.yaml
+    curl -sLO "${TEMPLATES_URL_BASE}/livekit.yaml.tpl"
+    envsubst_my livekit.yaml.tpl > livekit.yaml
 fi
 
 if [ -f "proxy.conf.template" ]; then
