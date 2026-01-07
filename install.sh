@@ -136,7 +136,7 @@ check_docker_container matrix-auth           || HAS_ERROR=1
 check_docker_container matrix-livekit        || HAS_ERROR=1
 [ "${HAS_ERROR}" -ne 0 ] && exit 251
 
-read -p "Создайте в Container Manager проект matrix-dendrite, задайте путь /docker/${MATRIX_PRJ_NAME}, запустите проект и продолжайте здесь... задайте имя пользователя-администратора [admin] (Enter - подтвердить):" MATRIX_ADMIN
+read -p "Создайте в Container Manager проект matrix-dendrite, задайте путь /docker/${MATRIX_PRJ_NAME}, запустите проект и продолжайте здесь... задайте имя пользователя-администратора [admin] (Enter - подтвердить): " MATRIX_ADMIN
 [ -z "${MATRIX_ADMIN}" ] && MATRIX_ADMIN="admin"
 
 echo "Создание администратора Matrix..."
