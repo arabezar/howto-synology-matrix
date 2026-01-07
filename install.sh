@@ -66,7 +66,6 @@ check_config_param() {
 # Проверка/создание папки проекта
 ENV_FILE="${DOCKER_PATH}/${MATRIX_PRJ_NAME}/.env"
 [ -f "$ENV_FILE" ] && . "$ENV_FILE"
-chmod ugo-x "$ENV_FILE"
 
 # Заполнение файла .env
 echo "Сбор параметров для развёртывания..."
@@ -75,6 +74,7 @@ check_config_param "Домен Matrix" "DOMAIN_MATRIX" "matrix.${DOMAIN_BASE}"
 check_config_param "Домен LiveKit" "DOMAIN_LIVEKIT" "matrixrtc-livekit.${DOMAIN_BASE}"
 check_config_param "Домен LiveKit Auth" "DOMAIN_AUTH" "matrixrtc-auth.${DOMAIN_BASE}"
 check_config_param "Секретная фраза (токен)" "SECRET_TOKEN"
+chmod ugo-x "$ENV_FILE"
 
 # Функция для эмуляции envsubst
 envsubst_my() {
