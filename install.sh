@@ -119,6 +119,23 @@ fi
 
 chmod ugo-x *.yaml proxy.conf.template matrix_key.pem
 
+# Функция проверки существования контейнеров с именами из docker.yaml
+check_docker_container() {
+    local _name="$1"
+    if [ $(docker ps -aq -f name=^/${_name}$) ]; then
+        echo "❌ Контейнер ${_name} уже существует, переименуйте его в compose.yaml во избежание конфликтов"
+        return 1
+    fi
+    return 0
+}
+
+HAS_ERROR=0
+check_docker_container matrix-internal-proxy || HAS_ERROR=1
+check_docker_container matrix-dendrite       || HAS_ERROR=1
+check_docker_container matrix-auth           || HAS_ERROR=1
+check_docker_container matrix-livekit        || HAS_ERROR=1
+[ "${HAS_ERROR}" -ne 0 ] && exit 251
+
 read -p "Создайте в Container Manager проект matrix-dendrite, задайте путь /docker/${MATRIX_PRJ_NAME}, запустите проект и продолжайте здесь... задайте имя пользователя-администратора [admin] (Enter - подтвердить):" MATRIX_ADMIN
 [ -z "${MATRIX_ADMIN}" ] && MATRIX_ADMIN="admin"
 
