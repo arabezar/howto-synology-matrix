@@ -111,7 +111,6 @@ else
     curl -sLO "${TEMPLATES_URL_BASE}/proxy.conf.template"
 fi
 
-
 if [ -f "matrix_key.pem" ]; then
     echo "... ключ подписи Matrix найден, генерация пропущена"
 else
