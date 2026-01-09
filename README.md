@@ -19,15 +19,18 @@
 ### Проброс портов на роутере
 Направьте на локальный IP Synology:
 - TCP: 80 (HTTP), 443 (HTTPS) - традиционно
-- TCP/UDP: 3478 (Matrix TURN)
 - UDP: 50100-50200 (LiveKit Media)
+Не обязательно:
+- TCP/UDP: 3478 (Matrix TURN)
+- TCP: 7881 (LiveKit Signal/TCP fallback)
+- UDP: 30000-40000 (LiveKit Media TURN relay)
 
 ### Настройка Synology Reverse Proxy
 Для каждого поддомена создайте правила в `Панель управления` > `Портал для входа` > `Дополнительно` > `Обратный прокси`:
 - `matrix.example.com:443` -> `http://localhost:18080` (WebSocket: ON)
 - `auth.example.com:443` -> `http://localhost:18080` (WebSocket: ON)
 - `livekit.example.com:443` -> `http://localhost:18080` (WebSocket: ON)
-- `example.com:443` -> `http://localhost:18080` (WebSocket: ON) - не обязательно, см. [Нюансы](#нюансы-развёртывания) ниже
+- `example.com:443` -> `http://localhost:18080` (WebSocket: ON) - не обязательно, но желательно, см. [Нюансы](#нюансы-развёртывания) ниже
 
 ## Развёртывание
 
